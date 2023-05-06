@@ -1,0 +1,30 @@
+{
+  "name": "openmusic-api",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start-dev": "NODE_ENV=development ts-node-dev ./src/server.ts",
+    "lint": "eslint ./src",
+    "migrate": "node-pg-migrate"
+  },
+  "keywords": [],
+  "author": "Fazza Razaq Amiarso",
+  "license": "ISC",
+  "dependencies": {
+    "@hapi/hapi": "^21.3.2",
+    "auto-bind": "^5.0.1",
+    "dotenv": "^16.0.3",
+    "joi": "^17.9.2",
+    "nanoid": "^4.0.2",
+    "node-pg-migrate": "^6.2.2",
+    "nodemon": "^2.0.22",
+    "pg": "^8.10.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.39.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-import": "^2.27.5",
+    "prettier": "^2.8.8"
+  }
+}

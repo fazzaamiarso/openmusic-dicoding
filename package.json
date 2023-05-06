@@ -2,8 +2,9 @@
   "name": "openmusic-api",
   "version": "1.0.0",
   "description": "",
+  "main": "./src/server.js",
   "scripts": {
-    "start-dev": "NODE_ENV=development ts-node-dev ./src/server.ts",
+    "start-dev": "NODE_ENV=development nodemon ./src/server.mjs",
     "lint": "eslint ./src",
     "migrate": "node-pg-migrate"
   },

@@ -2,6 +2,10 @@ const Hapi = require("@hapi/hapi");
 const Dotenv = require("dotenv");
 const ClientError = require("./exceptions/ClientError");
 
+const AlbumsService = require("./infra/postgres/AlbumsService");
+const AlbumsValidator = require("./validator/albums");
+const AlbumsPlugin = require("./api/albums/index");
+
 Dotenv.config({
   path:
     process.env.NODE_ENV === "development"
@@ -23,25 +27,35 @@ const startServer = async () => {
     },
   });
 
+  await server.register({
+    plugin: AlbumsPlugin,
+    options: {
+      service: new AlbumsService(),
+      validator: AlbumsValidator,
+    },
+  });
+
   server.ext("onPreResponse", (request, h) => {
     const { response } = request;
     if (response instanceof Error) {
       if (response instanceof ClientError) {
-        const newResponse = h.response({
-          status: "fail",
-          message: response.message,
-        });
-        newResponse.code(response.statusCode);
+        const newResponse = h
+          .response({
+            status: "fail",
+            message: response.message,
+          })
+          .code(response.statusCode);
         return newResponse;
       }
       if (!response.isServer) {
         return h.continue;
       }
-      const newResponse = h.response({
-        status: "error",
-        message: "Something went wrong!",
-      });
-      newResponse.code(500);
+      const newResponse = h
+        .response({
+          status: "error",
+          message: "Something went wrong!",
+        })
+        .code(500);
       return newResponse;
     }
     return h.continue;

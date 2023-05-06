@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 const { nanoid } = require("nanoid");
 const { Pool } = require("pg");
+const NotFoundError = require("../../exceptions/NotFoundError");
 
 class AlbumsService {
   constructor() {
@@ -20,8 +21,7 @@ class AlbumsService {
     const resultId = result.rows[0].id;
 
     if (!resultId) {
-      // Create exceptions
-      throw Error("NO ID");
+      throw new NotFoundError("Can't find what you're looking for!");
     }
     return resultId;
   }
@@ -35,42 +35,35 @@ class AlbumsService {
     const result = await this._pool.query(query);
 
     if (!result.rows.length) {
-      // Create exceptions
-      throw Error("NO ID");
+      throw new NotFoundError("Can't find what you're looking for!");
     }
     return result.rows[0];
   }
 
   async editAlbumById({ id, name, year }) {
     const query = {
-      text: "UPDATE albums SET name=$1, year=$2  WHERE id=$3",
+      text: "UPDATE albums SET name=$1, year=$2  WHERE id=$3 RETURNING id",
       values: [name, year, id],
     };
 
     const result = await this._pool.query(query);
 
-    const resultId = result.rows[0].id;
-
-    if (!resultId) {
-      // Create exceptions
-      throw Error("NO ID");
+    if (!result.rows.length) {
+      throw new NotFoundError("Can't find what you're looking for!");
     }
-    return resultId;
   }
 
   async deleteAlbumById(id) {
     const query = {
-      text: "DELETE FROM albums WHERE id=$1",
+      text: "DELETE FROM albums WHERE id=$1 RETURNING id",
       values: [id],
     };
 
     const result = await this._pool.query(query);
 
     if (!result.rows.length) {
-      // Create exceptions
-      throw Error("NO ID");
+      throw new NotFoundError("Can't find what you're looking for!");
     }
-    return result.rows[0];
   }
 }
 

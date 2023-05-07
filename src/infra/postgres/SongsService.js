@@ -2,6 +2,7 @@
 const { nanoid } = require("nanoid");
 const { Pool } = require("pg");
 const NotFoundError = require("../../exceptions/NotFoundError");
+const { mapSongDbToModel } = require("../../utils/modelMapper");
 
 class SongsService {
   constructor() {
@@ -10,30 +11,31 @@ class SongsService {
 
   async getAllSongs() {
     const query = {
-      text: "SELECT * FROM songs",
+      text: "SELECT id, title, performer FROM songs",
     };
 
     const result = await this._pool.query(query);
 
-    return result;
+    return result.rows;
   }
 
   async addSong({ title, performer, year, genre, duration, albumId }) {
     const id = `song-${nanoid()}`;
 
     const query = {
-      text: "INSERT INTO songs (id, title, performer, year, genre, duration, album_id) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id",
+      text: `INSERT INTO 
+      songs(id, title, performer, year, genre, duration, album_id) 
+      VALUES($1, $2, $3, $4, $5, $6, $7) 
+      RETURNING id`,
       values: [id, title, performer, year, genre, duration, albumId],
     };
 
     const result = await this._pool.query(query);
 
-    const resultId = result.rows[0].id;
-
-    if (!resultId) {
+    if (!result.rows[0]) {
       throw new NotFoundError("Can't find what you're looking for!");
     }
-    return resultId;
+    return result.rows[0].id;
   }
 
   async getSongById(id) {
@@ -47,10 +49,10 @@ class SongsService {
     if (!result.rows.length) {
       throw new NotFoundError("Can't find what you're looking for!");
     }
-    return result.rows[0];
+    return mapSongDbToModel(result.rows[0]);
   }
 
-  async deleteAlbumById(id) {
+  async deleteSongById(id) {
     const query = {
       text: "DELETE FROM songs WHERE id=$1 RETURNING id",
       values: [id],

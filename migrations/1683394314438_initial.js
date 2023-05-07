@@ -19,7 +19,7 @@ exports.up = (pgm) => {
     "songs",
     {
       id: "id",
-      name: {
+      title: {
         type: "TEXT",
         notNull: true,
       },
@@ -39,7 +39,7 @@ exports.up = (pgm) => {
         type: "integer",
       },
       album_id: {
-        type: "id",
+        type: "VARCHAR(50)",
       },
     },
     {

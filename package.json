@@ -4,8 +4,10 @@
   "description": "",
   "main": "./src/server.js",
   "scripts": {
-    "start-dev": "NODE_ENV=development nodemon ./src/server.js",
+    "start": "cross-env NODE_ENV=production node ./src/server.js",
+    "start-dev": "cross-env NODE_ENV=development nodemon ./src/server.js",
     "lint": "eslint ./src",
+    "lint:fix": "eslint ./src --fix",
     "migrate:up": "node-pg-migrate up",
     "migrate:down": "node-pg-migrate down",
     "migrate:redo": "node-pg-migrate redo",
@@ -25,6 +27,7 @@
     "pg": "^8.10.0"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "eslint": "^8.39.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^8.8.0",

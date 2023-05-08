@@ -67,7 +67,7 @@ const startServer = async () => {
       const newResponse = h
         .response({
           status: "error",
-          message: "Something went wrongss!",
+          message: "Something went wrong!",
         })
         .code(500);
       return newResponse;

@@ -9,9 +9,18 @@ class SongsService {
     this._pool = new Pool();
   }
 
-  async getAllSongs() {
+  async getAllSongs(searchQuery) {
+    const queryText = Object.keys(searchQuery).length
+      ? `WHERE ${Object.entries(searchQuery)
+          .map(([k], idx) => `${k} ILIKE $${idx + 1}`)
+          .join(" AND ")}`
+      : "";
+
+    const queryValues = Object.values(searchQuery).map((query) => `%${query}%`);
+
     const query = {
-      text: "SELECT id, title, performer FROM songs",
+      text: `SELECT id, title, performer FROM songs ${queryText}`,
+      values: queryValues,
     };
 
     const result = await this._pool.query(query);

@@ -42,7 +42,10 @@ class SongsHandler {
     await this._service.editSongById({ id, ...payload });
 
     return h
-      .response({ status: "success", message: "Edit successful!" })
+      .response({
+        status: "success",
+        message: `Song with id:${id}, succesfully edited!`,
+      })
       .code(200);
   }
 
@@ -52,7 +55,10 @@ class SongsHandler {
     await this._service.deleteSongById(id);
 
     return h
-      .response({ status: "success", message: "Delete successful!" })
+      .response({
+        status: "success",
+        message: `Song with id:${id}, succesfully deleted!`,
+      })
       .code(200);
   }
 }

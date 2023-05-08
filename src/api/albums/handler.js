@@ -41,12 +41,14 @@ class AlbumsHandler {
     this._validator.validateAlbumPayload(payload);
 
     const { id } = request.params;
-    const { name, year } = payload;
 
-    await this._service.editAlbumById({ id, name, year });
+    await this._service.editAlbumById({ id, ...payload });
 
     return h
-      .response({ status: "success", message: "Edit successful!" })
+      .response({
+        status: "success",
+        message: `Album with id:${id}, succesfully edited!`,
+      })
       .code(200);
   }
 
@@ -56,7 +58,10 @@ class AlbumsHandler {
     await this._service.deleteAlbumById(id);
 
     return h
-      .response({ status: "success", message: "Delete successful!" })
+      .response({
+        status: "success",
+        message: `Album with id:${id}, succesfully deleted!`,
+      })
       .code(200);
   }
 }

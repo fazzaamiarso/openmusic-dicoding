@@ -1,6 +1,7 @@
 const { nanoid } = require("nanoid");
 const { Pool } = require("pg");
 const NotFoundError = require("../../exceptions/NotFoundError");
+const InvariantError = require("../../exceptions/InvariantError");
 
 class AlbumsService {
   constructor() {
@@ -16,12 +17,10 @@ class AlbumsService {
     };
 
     const result = await this._pool.query(query);
-
     const resultId = result.rows[0].id;
 
-    if (!resultId) {
-      throw new NotFoundError("Can't find what you're looking for!");
-    }
+    if (!resultId) throw new InvariantError("Failed to add album!");
+
     return resultId;
   }
 
@@ -33,9 +32,9 @@ class AlbumsService {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) {
-      throw new NotFoundError("Can't find what you're looking for!");
-    }
+    if (!result.rows.length)
+      throw new NotFoundError(`Can't find album with id: ${id}!`);
+
     return result.rows[0];
   }
 
@@ -58,9 +57,10 @@ class AlbumsService {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) {
-      throw new NotFoundError("Can't find what you're looking for!");
-    }
+    if (!result.rows.length)
+      throw new NotFoundError(
+        `Can't edit album with id: ${id}, album not found!`
+      );
   }
 
   async deleteAlbumById(id) {
@@ -71,9 +71,10 @@ class AlbumsService {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) {
-      throw new NotFoundError("Can't find what you're looking for!");
-    }
+    if (!result.rows.length)
+      throw new NotFoundError(
+        `Can't delete album with id: ${id}, album not found!`
+      );
   }
 }
 

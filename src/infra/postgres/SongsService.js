@@ -1,6 +1,7 @@
 const { nanoid } = require("nanoid");
 const { Pool } = require("pg");
 const NotFoundError = require("../../exceptions/NotFoundError");
+const InvariantError = require("../../exceptions/InvariantError");
 const { mapSongDbToModel } = require("../../utils/modelMapper");
 
 class SongsService {
@@ -9,9 +10,10 @@ class SongsService {
   }
 
   async getAllSongs(searchQuery) {
-    const queryText = Object.keys(searchQuery).length
-      ? `WHERE ${Object.entries(searchQuery)
-          .map(([k], idx) => `${k} ILIKE $${idx + 1}`)
+    const searchQueryKeys = Object.keys(searchQuery);
+    const queryText = searchQueryKeys.length
+      ? `WHERE ${searchQueryKeys
+          .map((key, idx) => `${key} ILIKE $${idx + 1}`)
           .join(" AND ")}`
       : "";
 
@@ -39,11 +41,11 @@ class SongsService {
     };
 
     const result = await this._pool.query(query);
+    const resultId = result.rows[0].id;
 
-    if (!result.rows[0]) {
-      throw new NotFoundError("Can't find what you're looking for!");
-    }
-    return result.rows[0].id;
+    if (!resultId) throw new InvariantError("Failed to add song!");
+
+    return resultId;
   }
 
   async getSongById(id) {
@@ -54,9 +56,9 @@ class SongsService {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) {
-      throw new NotFoundError("Can't find what you're looking for!");
-    }
+    if (!result.rows.length)
+      throw new NotFoundError(`Can't find song with id: ${id}!`);
+
     return mapSongDbToModel(result.rows[0]);
   }
 
@@ -68,9 +70,10 @@ class SongsService {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) {
-      throw new NotFoundError("Can't find what you're looking for!");
-    }
+    if (!result.rows.length)
+      throw new NotFoundError(
+        `Can't delete song with id: ${id}, song not found!`
+      );
   }
 
   async editSongById({ id, title, year, performer, genre, duration, albumId }) {
@@ -81,9 +84,10 @@ class SongsService {
 
     const result = await this._pool.query(query);
 
-    if (!result.rows.length) {
-      throw new NotFoundError("Can't find what you're looking for!");
-    }
+    if (!result.rows.length)
+      throw new NotFoundError(
+        `Can't edit song with id: ${id}, song not found!`
+      );
   }
 }
 

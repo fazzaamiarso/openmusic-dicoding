@@ -1,5 +1,5 @@
 const AuthenticationsHandler = require("./handler");
-const routes = require("./routes");
+const { registerRoutes } = require("./routes");
 
 module.exports = {
   name: "authentications",
@@ -14,6 +14,6 @@ module.exports = {
       tokenManager,
       validator
     );
-    server.route(routes(authenticationsHandler));
+    server.route(registerRoutes(authenticationsHandler));
   },
 };

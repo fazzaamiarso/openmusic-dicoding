@@ -11,7 +11,8 @@
     "migrate:up": "node-pg-migrate up",
     "migrate:down": "node-pg-migrate down",
     "migrate:redo": "node-pg-migrate redo",
-    "migrate:create": "node-pg-migrate create"
+    "migrate:create": "node-pg-migrate create",
+    "clear:db": "node psql/clear-db.js"
   },
   "keywords": [],
   "author": "Fazza Razaq Amiarso",

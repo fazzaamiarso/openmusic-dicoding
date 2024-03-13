@@ -4,22 +4,28 @@ const Jwt = require("@hapi/jwt");
 
 const ClientError = require("./exceptions/ClientError");
 
-const AlbumsService = require("./infra/postgres/AlbumsService");
-const AlbumsValidator = require("./validator/albums");
-const AlbumsPlugin = require("./api/albums/index");
+const {
+  AlbumsService,
+  SongsService,
+  UsersService,
+  AuthenticationsService,
+} = require("./infra/postgres");
 
-const SongsService = require("./infra/postgres/SongsService");
-const SongsValidator = require("./validator/songs");
-const SongsPlugin = require("./api/songs/index");
+const {
+  AlbumsValidator,
+  SongsValidator,
+  UsersValidator,
+  AuthenticationsValidator,
+} = require("./validator");
 
-const UsersPlugin = require("./api/users");
-const UsersService = require("./infra/postgres/UsersService");
-const UsersValidator = require("./validator/users");
+const {
+  AlbumsPlugin,
+  SongsPlugin,
+  UsersPlugin,
+  AuthenticationsPlugin,
+} = require("./api");
 
-const AuthenticationsPlugin = require("./api/authentications");
-const AuthenticationsService = require("./infra/postgres/AuthenticationsService");
 const TokenManager = require("./tokenize/TokenManager");
-const AuthenticationsValidator = require("./validator/authentications");
 
 Dotenv.config({
   path:
@@ -43,45 +49,46 @@ const startServer = async () => {
     },
   });
 
+  const albumsService = new AlbumsService();
+  const songsService = new SongsService();
+  const usersService = new UsersService();
+  const authenticationsService = new AuthenticationsService();
+
   await server.register([
     {
       plugin: Jwt,
     },
+    {
+      plugin: AlbumsPlugin,
+      options: {
+        service: albumsService,
+        validator: AlbumsValidator,
+      },
+    },
+    {
+      plugin: SongsPlugin,
+      options: {
+        service: songsService,
+        validator: SongsValidator,
+      },
+    },
+    {
+      plugin: UsersPlugin,
+      options: {
+        service: usersService,
+        validator: UsersValidator,
+      },
+    },
+    {
+      plugin: AuthenticationsPlugin,
+      options: {
+        usersService,
+        authenticationsService,
+        tokenManager: TokenManager,
+        validator: AuthenticationsValidator,
+      },
+    },
   ]);
-
-  await server.register({
-    plugin: AlbumsPlugin,
-    options: {
-      service: new AlbumsService(),
-      validator: AlbumsValidator,
-    },
-  });
-
-  await server.register({
-    plugin: SongsPlugin,
-    options: {
-      service: new SongsService(),
-      validator: SongsValidator,
-    },
-  });
-
-  await server.register({
-    plugin: UsersPlugin,
-    options: {
-      service: new UsersService(),
-      validator: UsersValidator,
-    },
-  });
-
-  await server.register({
-    plugin: AuthenticationsPlugin,
-    options: {
-      authenticationsService: AuthenticationsService,
-      usersService: new UsersService(),
-      tokenManager: TokenManager,
-      validator: AuthenticationsValidator,
-    },
-  });
 
   server.auth.strategy("openmusic_jwt", "jwt", {
     keys: process.env.ACCESS_TOKEN_KEY,

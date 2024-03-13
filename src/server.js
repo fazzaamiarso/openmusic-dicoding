@@ -10,6 +10,10 @@ const SongsService = require("./infra/postgres/SongsService");
 const SongsValidator = require("./validator/songs");
 const SongsPlugin = require("./api/songs/index");
 
+const UsersPlugin = require("./api/users");
+const UsersService = require("./infra/postgres/UsersService");
+const UsersValidator = require("./validator/users");
+
 Dotenv.config({
   path:
     process.env.NODE_ENV === "development"
@@ -45,6 +49,14 @@ const startServer = async () => {
     options: {
       service: new SongsService(),
       validator: SongsValidator,
+    },
+  });
+
+  await server.register({
+    plugin: UsersPlugin,
+    options: {
+      service: new UsersService(),
+      validator: UsersValidator,
     },
   });
 

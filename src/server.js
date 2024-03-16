@@ -1,6 +1,6 @@
 const Hapi = require("@hapi/hapi");
 const Dotenv = require("dotenv");
-const Jwt = require("@hapi/jwt");
+const JWT = require("@hapi/jwt");
 
 const ClientError = require("./exceptions/ClientError");
 
@@ -9,6 +9,7 @@ const {
   SongsService,
   UsersService,
   AuthenticationsService,
+  PlaylistsService,
 } = require("./infra/postgres");
 
 const {
@@ -16,6 +17,7 @@ const {
   SongsValidator,
   UsersValidator,
   AuthenticationsValidator,
+  PlaylistsValidator,
 } = require("./validator");
 
 const {
@@ -23,6 +25,7 @@ const {
   SongsPlugin,
   UsersPlugin,
   AuthenticationsPlugin,
+  PlaylistsPlugin,
 } = require("./api");
 
 const TokenManager = require("./tokenize/TokenManager");
@@ -53,10 +56,35 @@ const startServer = async () => {
   const songsService = new SongsService();
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
+  const playlistsService = new PlaylistsService();
+
+  await server.register(JWT);
+
+  server.auth.strategy("openmusic_jwt", "jwt", {
+    keys: process.env.ACCESS_TOKEN_KEY,
+    verify: {
+      aud: false,
+      iss: false,
+      sub: false,
+      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
+    },
+    validate: (artifacts) => ({
+      isValid: true,
+      credentials: {
+        id: artifacts.decoded.payload.id,
+      },
+    }),
+  });
 
   await server.register([
     {
-      plugin: Jwt,
+      plugin: AuthenticationsPlugin,
+      options: {
+        usersService,
+        authenticationsService,
+        tokenManager: TokenManager,
+        validator: AuthenticationsValidator,
+      },
     },
     {
       plugin: AlbumsPlugin,
@@ -80,31 +108,14 @@ const startServer = async () => {
       },
     },
     {
-      plugin: AuthenticationsPlugin,
+      plugin: PlaylistsPlugin,
       options: {
-        usersService,
-        authenticationsService,
-        tokenManager: TokenManager,
-        validator: AuthenticationsValidator,
+        songsService,
+        service: playlistsService,
+        validator: PlaylistsValidator,
       },
     },
   ]);
-
-  server.auth.strategy("openmusic_jwt", "jwt", {
-    keys: process.env.ACCESS_TOKEN_KEY,
-    verify: {
-      aud: false,
-      iss: false,
-      sub: false,
-      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
-    },
-    validate: (artifacts) => ({
-      isValid: true,
-      credentials: {
-        id: artifacts.decoded.payload.id,
-      },
-    }),
-  });
 
   server.ext("onPreResponse", (request, h) => {
     const { response } = request;
@@ -125,7 +136,7 @@ const startServer = async () => {
       const newResponse = h
         .response({
           status: "error",
-          message: "Something went wrong!",
+          message: response.message || "Something went wrong!",
         })
         .code(500);
       return newResponse;

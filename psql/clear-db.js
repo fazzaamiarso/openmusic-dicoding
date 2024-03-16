@@ -8,7 +8,9 @@ const client = new Client({});
 (async () => {
   try {
     await client.connect();
-    await client.query("TRUNCATE albums, songs, users, authentications;");
+    await client.query(
+      "TRUNCATE albums, songs, users, authentications, playlists, playlist_songs;"
+    );
   } catch (e) {
     console.log(e);
   } finally {

@@ -7,8 +7,9 @@ const {
 } = require("../../exceptions");
 
 class PlaylistsService {
-  constructor() {
+  constructor(collaborationService) {
     this._pool = new Pool();
+    this._collaborationService = collaborationService;
   }
 
   async addPlaylist({ name, ownerId }) {
@@ -47,7 +48,8 @@ class PlaylistsService {
       text: `SELECT playlists.id, playlists.name, users.username
       FROM playlists 
       LEFT JOIN users ON users.id = playlists.owner
-      WHERE owner=$1`,
+      LEFT JOIN collaborations ON collaborations.playlist_id = playlists.id
+      WHERE collaborations.user_id = $1 OR playlists.owner = $1`,
       values: [ownerId],
     };
 
@@ -136,6 +138,24 @@ class PlaylistsService {
       throw new AuthorizationError(
         "You aren't allowed to access this resources!"
       );
+    }
+  }
+
+  async verifyPlaylistAccess({ playlistId, userId }) {
+    try {
+      await this.verifyPlaylistOwner(playlistId, userId);
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        throw error;
+      }
+      try {
+        await this._collaborationService.verifyCollaborator({
+          playlistId,
+          userId,
+        });
+      } catch {
+        throw error;
+      }
     }
   }
 }

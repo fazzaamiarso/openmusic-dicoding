@@ -3,6 +3,7 @@ const UsersPlugin = require("./users");
 const SongsPlugin = require("./songs");
 const AlbumsPlugin = require("./albums");
 const PlaylistsPlugin = require("./playlists");
+const CollaborationsPlugin = require("./collaborations");
 
 module.exports = {
   AuthenticationsPlugin,
@@ -10,4 +11,5 @@ module.exports = {
   SongsPlugin,
   AlbumsPlugin,
   PlaylistsPlugin,
+  CollaborationsPlugin,
 };

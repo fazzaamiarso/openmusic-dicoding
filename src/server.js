@@ -10,6 +10,7 @@ const {
   UsersService,
   AuthenticationsService,
   PlaylistsService,
+  CollaborationsService,
 } = require("./infra/postgres");
 
 const {
@@ -18,6 +19,7 @@ const {
   UsersValidator,
   AuthenticationsValidator,
   PlaylistsValidator,
+  CollaborationsValidator,
 } = require("./validator");
 
 const {
@@ -26,6 +28,7 @@ const {
   UsersPlugin,
   AuthenticationsPlugin,
   PlaylistsPlugin,
+  CollaborationsPlugin,
 } = require("./api");
 
 const TokenManager = require("./tokenize/TokenManager");
@@ -56,7 +59,8 @@ const startServer = async () => {
   const songsService = new SongsService();
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
-  const playlistsService = new PlaylistsService();
+  const collaborationService = new CollaborationsService();
+  const playlistsService = new PlaylistsService(collaborationService);
 
   await server.register(JWT);
 
@@ -113,6 +117,15 @@ const startServer = async () => {
         songsService,
         service: playlistsService,
         validator: PlaylistsValidator,
+      },
+    },
+    {
+      plugin: CollaborationsPlugin,
+      options: {
+        playlistsService,
+        usersService,
+        service: collaborationService,
+        validator: CollaborationsValidator,
       },
     },
   ]);

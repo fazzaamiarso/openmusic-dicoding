@@ -4,6 +4,7 @@ const SongsService = require("./SongsService");
 const UsersService = require("./UsersService");
 const PlaylistsService = require("./PlaylistsService");
 const CollaborationsService = require("./CollaborationsService");
+const ActivitiesService = require("./ActivitiesService");
 
 module.exports = {
   AuthenticationsService,
@@ -12,4 +13,5 @@ module.exports = {
   UsersService,
   PlaylistsService,
   CollaborationsService,
+  ActivitiesService,
 };

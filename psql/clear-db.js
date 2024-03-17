@@ -9,7 +9,7 @@ const client = new Client({});
   try {
     await client.connect();
     await client.query(
-      "TRUNCATE albums, songs, users, authentications, playlists, playlist_songs, collaborations;"
+      "TRUNCATE albums, songs, users, authentications, playlists, playlist_songs, collaborations, playlist_song_activities;"
     );
   } catch (e) {
     console.log(e);

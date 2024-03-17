@@ -5,10 +5,11 @@ const plugin = {
   version: "1.0.0",
   name: "playlists",
   register: (server, options) => {
-    const { service, songsService, validator } = options;
+    const { service, songsService, activitiesService, validator } = options;
     const playlistsHandler = new PlaylistsHandler(
       service,
       songsService,
+      activitiesService,
       validator
     );
 

@@ -11,6 +11,7 @@ const {
   AuthenticationsService,
   PlaylistsService,
   CollaborationsService,
+  ActivitiesService,
 } = require("./infra/postgres");
 
 const {
@@ -61,6 +62,7 @@ const startServer = async () => {
   const authenticationsService = new AuthenticationsService();
   const collaborationService = new CollaborationsService();
   const playlistsService = new PlaylistsService(collaborationService);
+  const activitiesService = new ActivitiesService();
 
   await server.register(JWT);
 
@@ -115,6 +117,7 @@ const startServer = async () => {
       plugin: PlaylistsPlugin,
       options: {
         songsService,
+        activitiesService,
         service: playlistsService,
         validator: PlaylistsValidator,
       },

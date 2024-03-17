@@ -1,9 +1,10 @@
 const autoBind = require("auto-bind");
 
 class PlaylistsHandler {
-  constructor(service, songsService, validator) {
+  constructor(service, songsService, activitiesService, validator) {
     this._service = service;
     this._songsService = songsService;
+    this._activitiesService = activitiesService;
     this._validator = validator;
 
     autoBind(this);
@@ -61,6 +62,13 @@ class PlaylistsHandler {
 
     await this._service.deletePlaylistSong({ playlistId, songId });
 
+    await this._activitiesService.addActivity({
+      playlistId,
+      userId: ownerId,
+      songId,
+      action: "delete",
+    });
+
     return h
       .response({
         status: "success",
@@ -81,6 +89,13 @@ class PlaylistsHandler {
     await this._service.verifyPlaylistAccess({ playlistId, userId: ownerId });
 
     await this._service.addSongToPlaylist({ playlistId, songId });
+
+    await this._activitiesService.addActivity({
+      playlistId,
+      userId: ownerId,
+      songId,
+      action: "add",
+    });
 
     const response = h
       .response({ status: "success", message: "Song added successfully!" })
@@ -109,6 +124,28 @@ class PlaylistsHandler {
             name: playlistMeta.name,
             songs: playlistSongs,
           },
+        },
+      })
+      .code(200);
+    return response;
+  }
+
+  async getPlaylistActivitiesHandler(request, h) {
+    const { id: playlistId } = request.params;
+    const { id: ownerId } = request.auth.credentials;
+
+    await this._service.verifyPlaylistAccess({ playlistId, userId: ownerId });
+
+    const activities = await this._activitiesService.getPlaylistActivities({
+      playlistId,
+    });
+
+    const response = h
+      .response({
+        status: "success",
+        data: {
+          playlistId,
+          activities,
         },
       })
       .code(200);

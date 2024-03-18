@@ -1,12 +1,8 @@
 const { nanoid } = require("nanoid");
-const { Pool } = require("pg");
+const { queryDB } = require("../../utils/db");
 const InvariantError = require("../../exceptions/InvariantError");
 
 class ActivitiesService {
-  constructor() {
-    this._pool = new Pool();
-  }
-
   async addActivity({ songId, userId, playlistId, action }) {
     const id = `activity-${nanoid()}`;
 
@@ -18,7 +14,7 @@ class ActivitiesService {
       values: [id, userId, playlistId, songId, action],
     };
 
-    const result = await this._pool.query(query);
+    const result = await queryDB(query);
 
     if (!result.rowCount) {
       throw new InvariantError("Failed to add activity!");
@@ -35,7 +31,7 @@ class ActivitiesService {
       values: [playlistId],
     };
 
-    const result = await this._pool.query(query);
+    const result = await queryDB(query);
 
     if (!result.rowCount) {
       throw new InvariantError(

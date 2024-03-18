@@ -1,18 +1,14 @@
-const { Pool } = require("pg");
+const { queryDB } = require("../../utils/db");
 const InvariantError = require("../../exceptions/InvariantError");
 
 class AuthenticationsService {
-  constructor() {
-    this._pool = new Pool();
-  }
-
   async addRefreshToken(token) {
     const query = {
       text: "INSERT INTO authentications VALUES($1)",
       values: [token],
     };
 
-    await this._pool.query(query);
+    await queryDB(query);
   }
 
   async verifyRefreshToken(token) {
@@ -21,7 +17,7 @@ class AuthenticationsService {
       values: [token],
     };
 
-    const result = await this._pool.query(query);
+    const result = await queryDB(query);
 
     if (!result.rows.length) {
       throw new InvariantError("Refresh token is invalid!");
@@ -34,7 +30,7 @@ class AuthenticationsService {
       values: [token],
     };
 
-    await this._pool.query(query);
+    await queryDB(query);
   }
 }
 

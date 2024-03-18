@@ -161,6 +161,7 @@ const startServer = async () => {
   });
 
   await server.start();
+
   console.log(`Server started on ${server.info.uri}`);
 };
 

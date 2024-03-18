@@ -1,5 +1,5 @@
-const { Pool } = require("pg");
 const { nanoid } = require("nanoid");
+const { queryDB } = require("../../utils/db");
 const {
   InvariantError,
   NotFoundError,
@@ -8,7 +8,6 @@ const {
 
 class PlaylistsService {
   constructor(collaborationService) {
-    this._pool = new Pool();
     this._collaborationService = collaborationService;
   }
 
@@ -19,7 +18,7 @@ class PlaylistsService {
       values: [id, name, ownerId],
     };
 
-    const result = await this._pool.query(query);
+    const result = await queryDB(query);
 
     if (!result.rows.length) {
       throw new InvariantError("Failed to add playlist!");
@@ -35,7 +34,7 @@ class PlaylistsService {
       values: [id, songId, playlistId],
     };
 
-    const result = await this._pool.query(query);
+    const result = await queryDB(query);
 
     if (!result.rowCount) {
       throw new InvariantError("Failed to add song to playlist!");
@@ -53,7 +52,7 @@ class PlaylistsService {
       values: [ownerId],
     };
 
-    const result = await this._pool.query(query);
+    const result = await queryDB(query);
 
     return result.rows;
   }
@@ -64,7 +63,7 @@ class PlaylistsService {
       values: [playlistId],
     };
 
-    const result = await this._pool.query(query);
+    const result = await queryDB(query);
 
     if (!result.rowCount)
       throw new NotFoundError(
@@ -78,7 +77,7 @@ class PlaylistsService {
       values: [playlistId, songId],
     };
 
-    const result = await this._pool.query(query);
+    const result = await queryDB(query);
 
     if (!result.rowCount)
       throw new NotFoundError(
@@ -95,7 +94,7 @@ class PlaylistsService {
       values: [playlistId],
     };
 
-    const result = await this._pool.query(query);
+    const result = await queryDB(query);
 
     if (!result.rowCount) {
       throw new NotFoundError(`Can't get songs from playlist ${playlistId}`);
@@ -112,10 +111,10 @@ class PlaylistsService {
       values: [playlistId],
     };
 
-    const result = await this._pool.query(query);
+    const result = await queryDB(query);
 
     if (!result.rowCount) {
-      throw new NotFoundError("Can't get playlist metadata!");
+      throw new InvariantError("Can't get playlist metadata!");
     }
 
     return result.rows[0];
@@ -127,7 +126,7 @@ class PlaylistsService {
       values: [id],
     };
 
-    const result = await this._pool.query(query);
+    const result = await queryDB(query);
 
     if (!result.rowCount) {
       throw new NotFoundError("Playlist not found!");

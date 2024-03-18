@@ -15,7 +15,8 @@
     "import/extensions": "off",
     "prefer-destructuring": "off",
     "import/prefer-default-export": "off",
-    "no-underscore-dangle": "off"
+    "no-underscore-dangle": "off",
+    "class-methods-use-this": "off"
   },
   "settings": {
     "import/resolver": {

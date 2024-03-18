@@ -1,12 +1,8 @@
-const { Pool } = require("pg");
 const { nanoid } = require("nanoid");
+const { queryDB } = require("../../utils/db");
 const { InvariantError, NotFoundError } = require("../../exceptions");
 
 class CollaborationsService {
-  constructor() {
-    this._pool = new Pool();
-  }
-
   async addCollaborator({ playlistId, userId }) {
     const id = `collaborator-${nanoid()}`;
 
@@ -15,7 +11,7 @@ class CollaborationsService {
       values: [id, playlistId, userId],
     };
 
-    const result = await this._pool.query(query);
+    const result = await queryDB(query);
 
     if (!result.rowCount) {
       throw new InvariantError("Failed to add collaborator!");
@@ -29,7 +25,7 @@ class CollaborationsService {
       values: [playlistId, userId],
     };
 
-    const result = await this._pool.query(query);
+    const result = await queryDB(query);
 
     if (!result.rowCount)
       throw new NotFoundError(
@@ -43,7 +39,7 @@ class CollaborationsService {
       values: [playlistId, userId],
     };
 
-    const result = await this._pool.query(query);
+    const result = await queryDB(query);
 
     if (!result.rowCount) {
       throw new NotFoundError("Collaborator not found!");

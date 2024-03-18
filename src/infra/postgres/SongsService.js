@@ -1,14 +1,9 @@
 const { nanoid } = require("nanoid");
-const { Pool } = require("pg");
-const NotFoundError = require("../../exceptions/NotFoundError");
-const InvariantError = require("../../exceptions/InvariantError");
+const { queryDB } = require("../../utils/db");
+const { NotFoundError, InvariantError } = require("../../exceptions");
 const { mapSongDbToModel } = require("../../utils/modelMapper");
 
 class SongsService {
-  constructor() {
-    this._pool = new Pool();
-  }
-
   async getAllSongs(searchQuery) {
     const searchQueryKeys = Object.keys(searchQuery);
     const queryText = searchQueryKeys.length
@@ -24,7 +19,7 @@ class SongsService {
       values: queryValues,
     };
 
-    const result = await this._pool.query(query);
+    const result = await queryDB(query);
 
     return result.rows;
   }
@@ -40,7 +35,7 @@ class SongsService {
       values: [id, title, performer, year, genre, duration, albumId],
     };
 
-    const result = await this._pool.query(query);
+    const result = await queryDB(query);
     const resultId = result.rows[0].id;
 
     if (!resultId) throw new InvariantError("Failed to add song!");
@@ -54,9 +49,9 @@ class SongsService {
       values: [id],
     };
 
-    const result = await this._pool.query(query);
+    const result = await queryDB(query);
 
-    if (!result.rows.length)
+    if (!result.rowCount)
       throw new NotFoundError(`Can't find song with id: ${id}!`);
 
     return mapSongDbToModel(result.rows[0]);
@@ -68,9 +63,9 @@ class SongsService {
       values: [id],
     };
 
-    const result = await this._pool.query(query);
+    const result = await queryDB(query);
 
-    if (!result.rows.length)
+    if (!result.rowCount)
       throw new NotFoundError(
         `Can't delete song with id: ${id}, song not found!`
       );
@@ -82,9 +77,9 @@ class SongsService {
       values: [title, year, performer, genre, duration, albumId, id],
     };
 
-    const result = await this._pool.query(query);
+    const result = await queryDB(query);
 
-    if (!result.rows.length)
+    if (!result.rowCount)
       throw new NotFoundError(
         `Can't edit song with id: ${id}, song not found!`
       );

@@ -1,15 +1,13 @@
 const { nanoid } = require("nanoid");
-const { Pool } = require("pg");
 const bcrypt = require("bcrypt");
-const NotFoundError = require("../../exceptions/NotFoundError");
-const InvariantError = require("../../exceptions/InvariantError");
-const AuthenticationError = require("../../exceptions/AuthenticationError");
+const { queryDB } = require("../../utils/db");
+const {
+  NotFoundError,
+  InvariantError,
+  AuthenticationError,
+} = require("../../exceptions");
 
 class UsersService {
-  constructor() {
-    this._pool = new Pool();
-  }
-
   async addUser({ username, password, fullname }) {
     await this.verifyNewUsername(username);
 
@@ -20,9 +18,9 @@ class UsersService {
       values: [id, username, hashedPassword, fullname],
     };
 
-    const result = await this._pool.query(query);
+    const result = await queryDB(query);
 
-    if (!result.rows.length) {
+    if (!result.rowCount) {
       throw new InvariantError("Failed to add user!");
     }
     return result.rows[0].id;
@@ -34,9 +32,9 @@ class UsersService {
       values: [userId],
     };
 
-    const result = await this._pool.query(query);
+    const result = await queryDB(query);
 
-    if (!result.rows.length) {
+    if (!result.rowCount) {
       throw new NotFoundError("User not found!");
     }
 
@@ -49,9 +47,9 @@ class UsersService {
       values: [username],
     };
 
-    const result = await this._pool.query(query);
+    const result = await queryDB(query);
 
-    if (result.rows.length > 0) {
+    if (result.rowCount > 0) {
       throw new InvariantError(
         "Failed to add user. Username is already registered!"
       );
@@ -64,9 +62,9 @@ class UsersService {
       values: [username],
     };
 
-    const result = await this._pool.query(query);
+    const result = await queryDB(query);
 
-    if (!result.rows.length) {
+    if (!result.rowCount) {
       throw new AuthenticationError("Kredensial yang Anda berikan salah");
     }
 

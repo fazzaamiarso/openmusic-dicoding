@@ -4,6 +4,7 @@ const SongsValidator = require("./songs");
 const UsersValidator = require("./users");
 const PlaylistsValidator = require("./playlists");
 const CollaborationsValidator = require("./collaborations");
+const ExportsValidator = require("./exports");
 
 module.exports = {
   AlbumsValidator,
@@ -12,4 +13,5 @@ module.exports = {
   UsersValidator,
   PlaylistsValidator,
   CollaborationsValidator,
+  ExportsValidator,
 };

@@ -21,6 +21,7 @@ const {
   AuthenticationsValidator,
   PlaylistsValidator,
   CollaborationsValidator,
+  ExportsValidator,
 } = require("./validator");
 
 const {
@@ -30,9 +31,12 @@ const {
   AuthenticationsPlugin,
   PlaylistsPlugin,
   CollaborationsPlugin,
+  ExportsPlugin,
 } = require("./api");
 
 const TokenManager = require("./tokenize/TokenManager");
+
+const SenderService = require("./infra/rabbitmq/SenderService");
 
 Dotenv.config({
   path:
@@ -129,6 +133,13 @@ const startServer = async () => {
         usersService,
         service: collaborationService,
         validator: CollaborationsValidator,
+      },
+    },
+    {
+      plugin: ExportsPlugin,
+      options: {
+        service: SenderService,
+        validator: ExportsValidator,
       },
     },
   ]);

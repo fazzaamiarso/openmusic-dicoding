@@ -1,14 +1,38 @@
 const Hapi = require("@hapi/hapi");
 const Dotenv = require("dotenv");
+const JWT = require("@hapi/jwt");
+
 const ClientError = require("./exceptions/ClientError");
 
-const AlbumsService = require("./infra/postgres/AlbumsService");
-const AlbumsValidator = require("./validator/albums");
-const AlbumsPlugin = require("./api/albums/index");
+const {
+  AlbumsService,
+  SongsService,
+  UsersService,
+  AuthenticationsService,
+  PlaylistsService,
+  CollaborationsService,
+  ActivitiesService,
+} = require("./infra/postgres");
 
-const SongsService = require("./infra/postgres/SongsService");
-const SongsValidator = require("./validator/songs");
-const SongsPlugin = require("./api/songs/index");
+const {
+  AlbumsValidator,
+  SongsValidator,
+  UsersValidator,
+  AuthenticationsValidator,
+  PlaylistsValidator,
+  CollaborationsValidator,
+} = require("./validator");
+
+const {
+  AlbumsPlugin,
+  SongsPlugin,
+  UsersPlugin,
+  AuthenticationsPlugin,
+  PlaylistsPlugin,
+  CollaborationsPlugin,
+} = require("./api");
+
+const TokenManager = require("./tokenize/TokenManager");
 
 Dotenv.config({
   path:
@@ -32,21 +56,82 @@ const startServer = async () => {
     },
   });
 
-  await server.register({
-    plugin: AlbumsPlugin,
-    options: {
-      service: new AlbumsService(),
-      validator: AlbumsValidator,
+  const albumsService = new AlbumsService();
+  const songsService = new SongsService();
+  const usersService = new UsersService();
+  const authenticationsService = new AuthenticationsService();
+  const collaborationService = new CollaborationsService();
+  const playlistsService = new PlaylistsService(collaborationService);
+  const activitiesService = new ActivitiesService();
+
+  await server.register(JWT);
+
+  server.auth.strategy("openmusic_jwt", "jwt", {
+    keys: process.env.ACCESS_TOKEN_KEY,
+    verify: {
+      aud: false,
+      iss: false,
+      sub: false,
+      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
     },
+    validate: (artifacts) => ({
+      isValid: true,
+      credentials: {
+        id: artifacts.decoded.payload.id,
+      },
+    }),
   });
 
-  await server.register({
-    plugin: SongsPlugin,
-    options: {
-      service: new SongsService(),
-      validator: SongsValidator,
+  await server.register([
+    {
+      plugin: AuthenticationsPlugin,
+      options: {
+        usersService,
+        authenticationsService,
+        tokenManager: TokenManager,
+        validator: AuthenticationsValidator,
+      },
     },
-  });
+    {
+      plugin: AlbumsPlugin,
+      options: {
+        service: albumsService,
+        validator: AlbumsValidator,
+      },
+    },
+    {
+      plugin: SongsPlugin,
+      options: {
+        service: songsService,
+        validator: SongsValidator,
+      },
+    },
+    {
+      plugin: UsersPlugin,
+      options: {
+        service: usersService,
+        validator: UsersValidator,
+      },
+    },
+    {
+      plugin: PlaylistsPlugin,
+      options: {
+        songsService,
+        activitiesService,
+        service: playlistsService,
+        validator: PlaylistsValidator,
+      },
+    },
+    {
+      plugin: CollaborationsPlugin,
+      options: {
+        playlistsService,
+        usersService,
+        service: collaborationService,
+        validator: CollaborationsValidator,
+      },
+    },
+  ]);
 
   server.ext("onPreResponse", (request, h) => {
     const { response } = request;
@@ -67,7 +152,7 @@ const startServer = async () => {
       const newResponse = h
         .response({
           status: "error",
-          message: "Something went wrong!",
+          message: response.message || "Something went wrong!",
         })
         .code(500);
       return newResponse;
@@ -76,6 +161,7 @@ const startServer = async () => {
   });
 
   await server.start();
+
   console.log(`Server started on ${server.info.uri}`);
 };
 

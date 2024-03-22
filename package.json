@@ -11,14 +11,17 @@
     "migrate:up": "node-pg-migrate up",
     "migrate:down": "node-pg-migrate down",
     "migrate:redo": "node-pg-migrate redo",
-    "migrate:create": "node-pg-migrate create"
+    "migrate:create": "node-pg-migrate create",
+    "clear:db": "node psql/clear-db.js"
   },
   "keywords": [],
   "author": "Fazza Razaq Amiarso",
   "license": "ISC",
   "dependencies": {
     "@hapi/hapi": "^21.3.2",
+    "@hapi/jwt": "^3.2.0",
     "auto-bind": "^4.0.0",
+    "bcrypt": "^5.1.1",
     "dotenv": "^16.0.3",
     "joi": "^17.9.2",
     "nanoid": "^3.3.6",

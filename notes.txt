@@ -1,0 +1,2 @@
+## Resources
+- https://www.sitepoint.com/jamstack-rest-api-hapi/

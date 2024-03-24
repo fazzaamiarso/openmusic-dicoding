@@ -1,7 +1,7 @@
 const registerRoutes = (handler) => [
   {
     method: "POST",
-    path: "/export/notes",
+    path: "/export/playlists/{playlistId}",
     handler: handler.postExportNotesHandler,
     options: {
       auth: "openmusic_jwt",

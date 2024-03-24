@@ -138,6 +138,7 @@ const startServer = async () => {
     {
       plugin: ExportsPlugin,
       options: {
+        playlistsService,
         service: SenderService,
         validator: ExportsValidator,
       },

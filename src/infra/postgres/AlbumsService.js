@@ -71,6 +71,63 @@ class AlbumsService {
         `Can't delete album with id: ${id}, album not found!`
       );
   }
+
+  async postLikeAlbum({ userId, albumId }) {
+    const id = `album-like-${nanoid()}`;
+
+    const query = {
+      text: "INSERT INTO user_album_likes(id, user_id, album_id) VALUES($1, $2, $3) RETURNING id",
+      values: [id, userId, albumId],
+    };
+
+    const result = await queryDB(query);
+
+    if (!result.rowCount)
+      throw new NotFoundError(
+        `Can't like album with id: ${albumId}, album not found!`
+      );
+
+    return result.rows[0];
+  }
+
+  async checkAlbumLike({ userId, albumId }) {
+    const query = {
+      text: "SELECT * FROM user_album_likes WHERE album_id = $1 AND user_id = $2",
+      values: [albumId, userId],
+    };
+
+    const result = await queryDB(query);
+
+    if (result.rowCount > 0)
+      throw new InvariantError(
+        `User: ${userId}, have liked the album: ${albumId}`
+      );
+  }
+
+  async deleteLikeAlbum({ userId, albumId }) {
+    const query = {
+      text: "DELETE FROM user_album_likes WHERE user_id = $1 AND album_id = $2 RETURNING id",
+      values: [userId, albumId],
+    };
+
+    const result = await queryDB(query);
+
+    if (!result.rowCount)
+      throw new NotFoundError(
+        `Can't unlike album with id: ${albumId}, album not found!`
+      );
+  }
+
+  async getLikesAlbum({ albumId }) {
+    const query = {
+      text: "SELECT COUNT(*) FROM user_album_likes WHERE album_id = $1",
+      values: [albumId],
+    };
+
+    const result = await queryDB(query);
+
+    return result.rows[0];
+  }
 }
 
 module.exports = AlbumsService;

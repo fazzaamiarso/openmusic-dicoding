@@ -38,6 +38,8 @@ const TokenManager = require("./tokenize/TokenManager");
 
 const SenderService = require("./infra/rabbitmq/SenderService");
 
+const CacheService = require("./infra/redis/CacheService");
+
 Dotenv.config({
   path:
     process.env.NODE_ENV === "development"
@@ -60,7 +62,8 @@ const startServer = async () => {
     },
   });
 
-  const albumsService = new AlbumsService();
+  const cacheService = new CacheService();
+  const albumsService = new AlbumsService(cacheService);
   const songsService = new SongsService();
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();

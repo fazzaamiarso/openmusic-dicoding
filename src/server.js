@@ -1,6 +1,8 @@
 const Hapi = require("@hapi/hapi");
 const Dotenv = require("dotenv");
 const JWT = require("@hapi/jwt");
+const Inert = require("@hapi/inert");
+const path = require("path");
 
 const ClientError = require("./exceptions/ClientError");
 
@@ -40,6 +42,8 @@ const SenderService = require("./infra/rabbitmq/SenderService");
 
 const CacheService = require("./infra/redis/CacheService");
 
+const StorageService = require("./infra/storage/StorageService");
+
 Dotenv.config({
   path:
     process.env.NODE_ENV === "development"
@@ -70,8 +74,12 @@ const startServer = async () => {
   const collaborationService = new CollaborationsService();
   const playlistsService = new PlaylistsService(collaborationService);
   const activitiesService = new ActivitiesService();
+  const storageService = new StorageService(
+    path.resolve(__dirname, "api/albums/uploads/images")
+  );
 
   await server.register(JWT);
+  await server.register(Inert);
 
   server.auth.strategy("openmusic_jwt", "jwt", {
     keys: process.env.ACCESS_TOKEN_KEY,
@@ -102,6 +110,7 @@ const startServer = async () => {
     {
       plugin: AlbumsPlugin,
       options: {
+        storageService,
         service: albumsService,
         validator: AlbumsValidator,
       },

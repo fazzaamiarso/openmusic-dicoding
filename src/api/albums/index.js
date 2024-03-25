@@ -5,8 +5,8 @@ const plugin = {
   version: "1.0.0",
   name: "albums",
   register: (server, options) => {
-    const { service, validator } = options;
-    const albumsHandler = new AlbumsHandler(service, validator);
+    const { service, storageService, validator } = options;
+    const albumsHandler = new AlbumsHandler(service, storageService, validator);
 
     server.route(registerRoutes(albumsHandler));
   },

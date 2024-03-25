@@ -1,8 +1,9 @@
 const autoBind = require("auto-bind");
 
 class AlbumsHandler {
-  constructor(service, validator) {
+  constructor(service, storageService, validator) {
     this._service = service;
+    this._storageService = storageService;
     this._validator = validator;
 
     autoBind(this);
@@ -15,7 +16,11 @@ class AlbumsHandler {
     const songsInAlbum = await this._service.getSongsInAlbum(id);
 
     const albumData = {
-      ...album,
+      id: album.id,
+      name: album.name,
+      year: album.year,
+      coverUrl: album.cover,
+
       songs: songsInAlbum,
     };
 
@@ -111,6 +116,25 @@ class AlbumsHandler {
       })
       .code(200)
       .header("X-Data-Source", dataSource);
+  }
+
+  async postUploadCoverHandler(request, h) {
+    const { cover } = request.payload;
+    const { id: albumId } = request.params;
+
+    this._validator.validateAlbumCoverPayload(cover.hapi.headers);
+
+    const fileName = await this._storageService.writeFile(cover, cover.hapi);
+    const coverUrl = `https://${process.env.HOST}:${process.env.PORT}/albums/uploads/${fileName}`;
+
+    await this._service.postUploadCover({ albumId, coverUrl });
+
+    const response = h.response({
+      status: "success",
+      message: "Cover uploaded!",
+    });
+    response.code(201);
+    return response;
   }
 }
 

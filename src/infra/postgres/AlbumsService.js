@@ -154,6 +154,19 @@ class AlbumsService {
       };
     }
   }
+
+  async postUploadCover({ albumId, coverUrl }) {
+    const query = {
+      text: "UPDATE albums SET cover = $1 WHERE id = $2 RETURNING id",
+      values: [coverUrl, albumId],
+    };
+
+    const result = await queryDB(query);
+
+    if (!result.rowCount) {
+      throw new NotFoundError(`Cover not uploaded. Album with id: ${albumId}`);
+    }
+  }
 }
 
 module.exports = AlbumsService;

@@ -1,3 +1,5 @@
+const path = require("path");
+
 const registerRoutes = (handler) => [
   { path: "/albums", method: "POST", handler: handler.postAlbumHandler },
   { path: "/albums/{id}", method: "GET", handler: handler.getAlbumByIdHandler },
@@ -27,6 +29,28 @@ const registerRoutes = (handler) => [
     path: "/albums/{id}/likes",
     method: "GET",
     handler: handler.getAlbumLikesHandler,
+  },
+  {
+    method: "POST",
+    path: "/albums/{id}/covers",
+    handler: handler.postUploadCoverHandler,
+    options: {
+      payload: {
+        allow: "multipart/form-data",
+        multipart: true,
+        maxBytes: 512000,
+        output: "stream",
+      },
+    },
+  },
+  {
+    method: "GET",
+    path: "/albums/{param*}",
+    handler: {
+      directory: {
+        path: path.resolve(__dirname, "uploads"),
+      },
+    },
   },
 ];
 

@@ -4,6 +4,13 @@ const JWT = require("@hapi/jwt");
 const Inert = require("@hapi/inert");
 const path = require("path");
 
+Dotenv.config({
+  path:
+    process.env.NODE_ENV === "development"
+      ? ".env"
+      : `.env.${process.env.NODE_ENV}`,
+});
+
 const ClientError = require("./exceptions/ClientError");
 
 const {
@@ -43,16 +50,10 @@ const SenderService = require("./infra/rabbitmq/SenderService");
 const CacheService = require("./infra/redis/CacheService");
 
 const StorageService = require("./infra/storage/StorageService");
+const { envConfig } = require("./utils/env");
 
-Dotenv.config({
-  path:
-    process.env.NODE_ENV === "development"
-      ? ".env"
-      : `.env.${process.env.NODE_ENV}`,
-});
-
-const port = process.env.PORT;
-const host = process.env.HOST;
+const port = envConfig.app.port;
+const host = envConfig.app.host;
 
 const startServer = async () => {
   const server = Hapi.server({
@@ -82,12 +83,12 @@ const startServer = async () => {
   await server.register(Inert);
 
   server.auth.strategy("openmusic_jwt", "jwt", {
-    keys: process.env.ACCESS_TOKEN_KEY,
+    keys: envConfig.app.access_token_key,
     verify: {
       aud: false,
       iss: false,
       sub: false,
-      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
+      maxAgeSec: envConfig.app.access_token_age,
     },
     validate: (artifacts) => ({
       isValid: true,

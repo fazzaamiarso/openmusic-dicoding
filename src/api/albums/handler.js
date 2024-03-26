@@ -1,4 +1,5 @@
 const autoBind = require("auto-bind");
+const { envConfig } = require("../../utils/env");
 
 class AlbumsHandler {
   constructor(service, storageService, validator) {
@@ -125,7 +126,7 @@ class AlbumsHandler {
     this._validator.validateAlbumCoverPayload(cover.hapi.headers);
 
     const fileName = await this._storageService.writeFile(cover, cover.hapi);
-    const coverUrl = `https://${process.env.HOST}:${process.env.PORT}/albums/uploads/${fileName}`;
+    const coverUrl = `https://${envConfig.app.host}:${envConfig.app.port}/albums/uploads/${fileName}`;
 
     await this._service.postUploadCover({ albumId, coverUrl });
 

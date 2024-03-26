@@ -21,7 +21,6 @@ class AlbumsHandler {
       name: album.name,
       year: album.year,
       coverUrl: album.cover,
-
       songs: songsInAlbum,
     };
 
@@ -126,9 +125,16 @@ class AlbumsHandler {
     this._validator.validateAlbumCoverPayload(cover.hapi.headers);
 
     const fileName = await this._storageService.writeFile(cover, cover.hapi);
-    const coverUrl = `https://${envConfig.app.host}:${envConfig.app.port}/albums/uploads/${fileName}`;
 
-    await this._service.postUploadCover({ albumId, coverUrl });
+    const coverUrl = new URL(
+      `albums/uploads/${fileName}`,
+      `https://${envConfig.app.host}:${envConfig.app.port}`
+    ).toString();
+
+    await this._service.postUploadCover({
+      albumId,
+      coverUrl,
+    });
 
     const response = h.response({
       status: "success",

@@ -7,8 +7,9 @@ const {
 } = require("../../exceptions");
 
 class PlaylistsService {
-  constructor(collaborationService) {
+  constructor(collaborationService, cacheService) {
     this._collaborationService = collaborationService;
+    this._cacheService = cacheService;
   }
 
   async addPlaylist({ name, ownerId }) {
@@ -69,6 +70,9 @@ class PlaylistsService {
       throw new NotFoundError(
         `Can't delete playlist with id: ${playlistId}, playlist not found!`
       );
+
+    // removing activities cache when playlist deleted
+    await this._cacheService.delete(`activities:${playlistId}`);
   }
 
   async deletePlaylistSong({ playlistId, songId }) {

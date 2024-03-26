@@ -136,9 +136,10 @@ class PlaylistsHandler {
 
     await this._service.verifyPlaylistAccess({ playlistId, userId: ownerId });
 
-    const activities = await this._activitiesService.getPlaylistActivities({
-      playlistId,
-    });
+    const { data: activities, dataSource } =
+      await this._activitiesService.getPlaylistActivities({
+        playlistId,
+      });
 
     const response = h
       .response({
@@ -148,7 +149,8 @@ class PlaylistsHandler {
           activities,
         },
       })
-      .code(200);
+      .code(200)
+      .header("X-Data-Source", dataSource);
     return response;
   }
 }

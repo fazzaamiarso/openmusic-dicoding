@@ -1,2 +1,3 @@
 ## Resources
 - https://www.sitepoint.com/jamstack-rest-api-hapi/
+- https://www.builder.io/blog/new-url

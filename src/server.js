@@ -69,12 +69,15 @@ const startServer = async () => {
 
   const cacheService = new CacheService();
   const albumsService = new AlbumsService(cacheService);
-  const songsService = new SongsService();
+  const songsService = new SongsService(cacheService);
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
   const collaborationService = new CollaborationsService();
-  const playlistsService = new PlaylistsService(collaborationService);
-  const activitiesService = new ActivitiesService();
+  const playlistsService = new PlaylistsService(
+    collaborationService,
+    cacheService
+  );
+  const activitiesService = new ActivitiesService(cacheService);
   const storageService = new StorageService(
     path.resolve(__dirname, "api/albums/uploads/images")
   );

@@ -50,6 +50,7 @@ const SenderService = require("./infra/rabbitmq/SenderService");
 const CacheService = require("./infra/redis/CacheService");
 
 const StorageService = require("./infra/storage/StorageService");
+
 const { envConfig } = require("./utils/env");
 
 const port = envConfig.app.port;
@@ -79,7 +80,7 @@ const startServer = async () => {
   );
   const activitiesService = new ActivitiesService(cacheService);
   const storageService = new StorageService(
-    path.resolve(__dirname, "api/albums/uploads/images")
+    path.resolve(__dirname, "api/albums/uploads")
   );
 
   await server.register(JWT);

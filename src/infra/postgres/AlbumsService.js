@@ -1,6 +1,7 @@
 const { nanoid } = require("nanoid");
 const { queryDB } = require("../../utils/db");
 const { NotFoundError, InvariantError } = require("../../exceptions");
+const { MINUTES_IN_SECONDS } = require("../../utils/constants");
 
 class AlbumsService {
   constructor(cacheService) {
@@ -145,7 +146,8 @@ class AlbumsService {
 
       await this._cacheService.set(
         `likes:${albumId}`,
-        JSON.stringify(likesCount)
+        JSON.stringify(likesCount),
+        MINUTES_IN_SECONDS * 30 // cache for 30 minutes
       );
 
       return {

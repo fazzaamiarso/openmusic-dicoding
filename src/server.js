@@ -80,7 +80,7 @@ const startServer = async () => {
   );
   const activitiesService = new ActivitiesService(cacheService);
   const storageService = new StorageService(
-    path.resolve(__dirname, "api/albums/uploads")
+    path.resolve(__dirname, "api/albums/uploads/images")
   );
 
   await server.register(JWT);

@@ -127,8 +127,8 @@ class AlbumsHandler {
     const fileName = await this._storageService.writeFile(cover, cover.hapi);
 
     const coverUrl = new URL(
-      `albums/uploads/${fileName}`,
-      `https://${envConfig.app.host}:${envConfig.app.port}`
+      `albums/images/${fileName}`,
+      `http://${envConfig.app.host}:${envConfig.app.port}`
     ).toString();
 
     await this._service.postUploadCover({
